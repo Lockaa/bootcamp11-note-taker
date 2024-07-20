@@ -1,4 +1,4 @@
-let noteForm;
+/* let noteForm;
 let noteTitle;
 let noteText;
 let saveNoteBtn;
@@ -28,11 +28,11 @@ const hide = (elem) => {
 // activeNote is used to keep track of the note in the textarea
 let activeNote = {};
 
-//temp: '../db/db.json'
-//actual file path: '/api/notes'
+var url = '/api/notes';
+var temp = '../db/db.json';
 
 const getNotes = () =>
-  fetch('../db/db.json', {
+  fetch('/api/notes', {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json'
@@ -40,7 +40,7 @@ const getNotes = () =>
   });
 
 const saveNote = (note) =>
-  fetch('../db/db.json', {
+  fetch('/api/notes', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
@@ -49,7 +49,7 @@ const saveNote = (note) =>
   });
 
 const deleteNote = (id) =>
-  fetch(`../db/db.json${id}`, {
+  fetch(`/api/notes${id}`, {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json'
@@ -195,3 +195,68 @@ if (window.location.pathname === '/notes') {
 }
 
 getAndRenderNotes();
+*/
+//Code i've written
+
+const saveBtn = document.getElementById("save-note")
+const clearNotesBtn = document.getElementById("clear-btn")
+const newBtn = document.getElementById("new-note")
+
+function Note(title, content) {
+  this.title = title;
+  this.content = content;
+}
+
+const testNote = new Note("Test Title", "Test Text");
+const noteArray = [testNote];
+
+function clearNote() {
+    const tempTitle = document.getElementById("note-title");
+    const tempText = document.getElementById("note-textarea");
+    tempTitle.innerHTML = "";
+    tempText.innerHTML = "";
+    console.log("cleared");
+}
+
+function addNotes() {
+    const tempTitle = document.getElementById("note-title");
+    const tempText = document.getElementById("note-textarea");
+    const tempNote = new Note(tempTitle.value, tempText.value);
+    noteArray.push(tempNote);
+    loadNotes();
+    clearNote();
+}
+
+function showNew() {
+    console.log("show new notes button");
+    newBtn.style.display = 'block';
+}
+
+function displayNote(titleIn, textIn) {
+    const tempTitle = document.getElementById("note-title");
+    const tempText = document.getElementById("note-textarea");
+    tempTitle.innerHTML = titleIn;
+    tempText.innerHTML = textIn;
+    console.log("displayed");
+}
+
+function loadNotes() {
+  const $noteOutput = $('.list-group');
+  $noteOutput.empty();
+  for(var i = 0; i < noteArray.length; i++) {
+    let tempButton = $("<div>");
+    tempButton.text(noteArray[i].title);
+    tempButton.id = noteArray[i].content;
+    tempButton.click(showNew);
+    tempButton.click(displayNote(tempButton.text, tempButton.id));
+    $noteOutput.append(tempButton);
+  }
+}
+
+
+
+loadNotes();
+
+saveBtn.addEventListener("click", addNotes);
+clearNotesBtn.addEventListener("click", clearNote);
+newBtn.addEventListener("click", clearNote);
