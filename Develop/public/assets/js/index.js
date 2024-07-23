@@ -28,11 +28,8 @@ const hide = (elem) => {
 // activeNote is used to keep track of the note in the textarea
 let activeNote = {};
 
-//temp: '../db/db.json'
-//actual file path: '/api/notes'
-
 const getNotes = () =>
-  fetch('../db/db.json', {
+  fetch('/api/notes', {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json'
@@ -40,7 +37,7 @@ const getNotes = () =>
   });
 
 const saveNote = (note) =>
-  fetch('../db/db.json', {
+  fetch('/api/notes', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
@@ -49,7 +46,7 @@ const saveNote = (note) =>
   });
 
 const deleteNote = (id) =>
-  fetch(`../db/db.json${id}`, {
+  fetch(`/api/notes/${id}`, {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json'
@@ -59,20 +56,23 @@ const deleteNote = (id) =>
 const renderActiveNote = () => {
   hide(saveNoteBtn);
   hide(clearBtn);
+  show(newNoteBtn);
+    
+  noteTitle.setAttribute('readonly', true);
+  noteText.setAttribute('readonly', true);
+  noteTitle.value = activeNote.title;
+  noteText.value = activeNote.text;
+};
 
-  if (activeNote.id) {
-    show(newNoteBtn);
-    noteTitle.setAttribute('readonly', true);
-    noteText.setAttribute('readonly', true);
-    noteTitle.value = activeNote.title;
-    noteText.value = activeNote.text;
-  } else {
-    hide(newNoteBtn);
-    noteTitle.removeAttribute('readonly');
-    noteText.removeAttribute('readonly');
-    noteTitle.value = '';
-    noteText.value = '';
-  }
+const renderClearNote = () => {
+  hide(saveNoteBtn);
+  hide(clearBtn);
+  hide(newNoteBtn);
+  
+  noteTitle.removeAttribute('readonly');
+  noteText.removeAttribute('readonly');
+  noteTitle.value = '';
+  noteText.value = '';
 };
 
 const handleNoteSave = () => {
@@ -82,7 +82,7 @@ const handleNoteSave = () => {
   };
   saveNote(newNote).then(() => {
     getAndRenderNotes();
-    renderActiveNote();
+    renderClearNote();
   });
 };
 
@@ -100,7 +100,7 @@ const handleNoteDelete = (e) => {
 
   deleteNote(noteId).then(() => {
     getAndRenderNotes();
-    renderActiveNote();
+    renderClearNote();
   });
 };
 
@@ -115,7 +115,7 @@ const handleNoteView = (e) => {
 const handleNewNoteView = (e) => {
   activeNote = {};
   show(clearBtn);
-  renderActiveNote();
+  renderClearNote();
 };
 
 // Renders the appropriate buttons based on the state of the form
@@ -187,10 +187,17 @@ const renderNoteList = async (notes) => {
 // Gets notes from the db and renders them to the sidebar
 const getAndRenderNotes = () => getNotes().then(renderNoteList);
 
+
+function hardRefresh() {
+  location.reload();
+}
+
+
 if (window.location.pathname === '/notes') {
   saveNoteBtn.addEventListener('click', handleNoteSave);
+  saveNoteBtn.addEventListener('click', hardRefresh);
   newNoteBtn.addEventListener('click', handleNewNoteView);
-  clearBtn.addEventListener('click', renderActiveNote);
+  clearBtn.addEventListener('click', renderClearNote);
   noteForm.addEventListener('input', handleRenderBtns);
 }
 
